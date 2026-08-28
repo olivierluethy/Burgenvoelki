@@ -1,0 +1,11 @@
+[
+  { "id": "badge_first_match", "name": "First Whistle", "description": "Play your first match", "metric": "matchesPlayed", "threshold": 1 },
+  { "id": "badge_first_win", "name": "On the Board", "description": "Win a match", "metric": "wins", "threshold": 1 },
+  { "id": "badge_capture_1", "name": "Keule Thief", "description": "Score your first capture", "metric": "captures", "threshold": 1 },
+  { "id": "badge_capture_10", "name": "Master Raider", "description": "Score 10 captures", "metric": "captures", "threshold": 10 },
+  { "id": "badge_hits_50", "name": "Sharpshooter", "description": "Land 50 hits", "metric": "hits", "threshold": 50 },
+  { "id": "badge_hits_250", "name": "Deadeye", "description": "Land 250 hits", "metric": "hits", "threshold": 250 },
+  { "id": "badge_mvp_5", "name": "Team Carry", "description": "Earn MVP 5 times", "metric": "mvps", "threshold": 5 },
+  { "id": "badge_level_10", "name": "Seasoned", "description": "Reach level 10", "metric": "level", "threshold": 10 },
+  { "id": "badge_veteran", "name": "Hall Veteran", "description": "Play 25 matches", "metric": "matchesPlayed", "threshold": 25 }
+]

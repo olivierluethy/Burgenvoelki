@@ -1,0 +1,16 @@
+{
+  "id": "season_1",
+  "name": "Season 1 · Hallenfest",
+  "rewards": [
+    { "level": 1, "xpNeeded": 0, "type": "cosmetic", "value": "trail_pink" },
+    { "level": 2, "xpNeeded": 500, "type": "chest", "value": "chest_wooden" },
+    { "level": 3, "xpNeeded": 500, "type": "currency", "value": 100 },
+    { "level": 4, "xpNeeded": 700, "type": "cosmetic", "value": "outfit_matterhorn" },
+    { "level": 5, "xpNeeded": 700, "type": "chest", "value": "chest_wooden" },
+    { "level": 6, "xpNeeded": 900, "type": "xp", "value": 300 },
+    { "level": 7, "xpNeeded": 900, "type": "cosmetic", "value": "trail_ember" },
+    { "level": 8, "xpNeeded": 1100, "type": "chest", "value": "chest_silver" },
+    { "level": 9, "xpNeeded": 1100, "type": "currency", "value": 250 },
+    { "level": 10, "xpNeeded": 1400, "type": "cosmetic", "value": "outfit_legende" }
+  ]
+}

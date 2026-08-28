@@ -1,0 +1,35 @@
+[
+  {
+    "id": "chest_wooden",
+    "name": "Wooden Chest",
+    "rarity": "common",
+    "odds": { "common": 0.6, "rare": 0.3, "epic": 0.09, "legendary": 0.01 },
+    "loot": [
+      { "cosmeticId": "outfit_alpine", "weight": 10 },
+      { "cosmeticId": "hat_band", "weight": 10 },
+      { "cosmeticId": "trail_pink", "weight": 10 },
+      { "cosmeticId": "outfit_edelweiss", "weight": 6 },
+      { "cosmeticId": "trail_frost", "weight": 6 },
+      { "cosmeticId": "hat_cap", "weight": 6 },
+      { "cosmeticId": "outfit_fondue", "weight": 3 },
+      { "cosmeticId": "trail_aurora", "weight": 1 },
+      { "cosmeticId": "outfit_legende", "weight": 1 }
+    ]
+  },
+  {
+    "id": "chest_silver",
+    "name": "Silver Chest",
+    "rarity": "rare",
+    "odds": { "common": 0.3, "rare": 0.45, "epic": 0.2, "legendary": 0.05 },
+    "loot": [
+      { "cosmeticId": "outfit_edelweiss", "weight": 10 },
+      { "cosmeticId": "trail_frost", "weight": 10 },
+      { "cosmeticId": "hat_cap", "weight": 10 },
+      { "cosmeticId": "outfit_fondue", "weight": 6 },
+      { "cosmeticId": "outfit_gletscher", "weight": 5 },
+      { "cosmeticId": "trail_aurora", "weight": 3 },
+      { "cosmeticId": "outfit_legende", "weight": 2 },
+      { "cosmeticId": "hat_crown", "weight": 1 }
+    ]
+  }
+]

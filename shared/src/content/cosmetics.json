@@ -1,0 +1,20 @@
+[
+  { "id": "outfit_default", "name": "Gym Kit", "slot": "outfit", "rarity": "common", "colors": ["#c9bca8", "#8b7e6b"], "source": "default" },
+  { "id": "outfit_alpine", "name": "Alpine Stripes", "slot": "outfit", "rarity": "common", "colors": ["#e7c08a", "#8a5a2c"], "source": "level" },
+  { "id": "outfit_edelweiss", "name": "Edelweiss", "slot": "outfit", "rarity": "rare", "colors": ["#fbf3e7", "#3fb27f"], "source": "chest" },
+  { "id": "outfit_matterhorn", "name": "Matterhorn", "slot": "outfit", "rarity": "rare", "colors": ["#38b6c9", "#144c9e"], "source": "battlepass" },
+  { "id": "outfit_fondue", "name": "Fondue Gold", "slot": "outfit", "rarity": "epic", "colors": ["#f2c14e", "#c41e72"], "source": "chest" },
+  { "id": "outfit_gletscher", "name": "Gletscher", "slot": "outfit", "rarity": "epic", "colors": ["#8ad7ff", "#2b7ce9"], "source": "challenge" },
+  { "id": "outfit_legende", "name": "Völki Legend", "slot": "outfit", "rarity": "legendary", "colors": ["#ff3e9c", "#f2c14e"], "source": "chest" },
+
+  { "id": "trail_none", "name": "No Trail", "slot": "trail", "rarity": "common", "colors": ["#00000000", "#00000000"], "source": "default" },
+  { "id": "trail_pink", "name": "Bubblegum", "slot": "trail", "rarity": "common", "colors": ["#ff3e9c", "#ff8ac4"], "source": "level" },
+  { "id": "trail_frost", "name": "Frost", "slot": "trail", "rarity": "rare", "colors": ["#8ad7ff", "#38b6c9"], "source": "chest" },
+  { "id": "trail_ember", "name": "Ember", "slot": "trail", "rarity": "epic", "colors": ["#ffb347", "#e23b3b"], "source": "battlepass" },
+  { "id": "trail_aurora", "name": "Aurora", "slot": "trail", "rarity": "legendary", "colors": ["#3fb27f", "#b15cff"], "source": "chest" },
+
+  { "id": "hat_none", "name": "Bare Head", "slot": "hat", "rarity": "common", "colors": ["#00000000", "#00000000"], "source": "default" },
+  { "id": "hat_band", "name": "Sweatband", "slot": "hat", "rarity": "common", "colors": ["#e23b3b", "#fbf3e7"], "source": "level" },
+  { "id": "hat_cap", "name": "Coach Cap", "slot": "hat", "rarity": "rare", "colors": ["#144c9e", "#fbf3e7"], "source": "chest" },
+  { "id": "hat_crown", "name": "MVP Crown", "slot": "hat", "rarity": "legendary", "colors": ["#f2c14e", "#c98f52"], "source": "challenge" }
+]

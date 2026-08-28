@@ -1,0 +1,8 @@
+[
+  { "id": "ch_daily_hits", "name": "Warm Up", "description": "Land 8 hits", "period": "daily", "metric": "hits", "target": 8, "xp": 150 },
+  { "id": "ch_daily_capture", "name": "Grab and Go", "description": "Score 1 capture", "period": "daily", "metric": "captures", "target": 1, "xp": 200 },
+  { "id": "ch_daily_play", "name": "Show Up", "description": "Play 2 matches", "period": "daily", "metric": "matchesPlayed", "target": 2, "xp": 120 },
+  { "id": "ch_weekly_wins", "name": "Winning Week", "description": "Win 5 matches", "period": "weekly", "metric": "wins", "target": 5, "xp": 600 },
+  { "id": "ch_weekly_captures", "name": "Raider's Run", "description": "Score 6 captures", "period": "weekly", "metric": "captures", "target": 6, "xp": 700 },
+  { "id": "ch_weekly_returns", "name": "Last Line", "description": "Make 4 Keule returns", "period": "weekly", "metric": "keuleReturns", "target": 4, "xp": 500 }
+]
