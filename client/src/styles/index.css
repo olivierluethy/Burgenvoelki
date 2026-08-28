@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens — the single source of truth in code, mirroring
+ * docs/STYLEGUIDE.md. Components reference these via Tailwind theme tokens or
+ * var(--token); never hardcode a hex.
+ */
+:root {
+  /* Arena base (warm dark) */
+  --bg-900: #14110d;
+  --bg-850: #1a160f;
+  --bg-800: #1e1a15;
+  --bg-700: #2a241c;
+  --bg-600: #3a3125;
+  --bg-500: #4c4130;
+
+  /* Gym wood */
+  --wood-light: #e7c08a;
+  --wood: #c98f52;
+  --wood-deep: #8a5a2c;
+
+  /* Teams */
+  --team-blue: #2b7ce9;
+  --team-blue-deep: #144c9e;
+  --team-blue-glow: #5aa0ff;
+  --team-red: #e23b3b;
+  --team-red-deep: #a11f1f;
+  --team-red-glow: #ff6b6b;
+
+  /* Ball */
+  --ball-pink: #ff3e9c;
+  --ball-pink-deep: #c41e72;
+  --ball-pink-glow: #ff8ac4;
+
+  /* Court lines */
+  --court-yellow: #f2c14e;
+  --court-green: #3fb27f;
+  --court-cyan: #38b6c9;
+  --court-magenta: #d84fa8;
+
+  /* Text */
+  --text-hi: #fbf3e7;
+  --text-mid: #c9bca8;
+  --text-lo: #8b7e6b;
+  --text-ink: #14110d;
+
+  /* Semantic */
+  --success: #3fb27f;
+  --warning: #f2a93b;
+  --danger: #e23b3b;
+  --info: #38b6c9;
+
+  /* Rarity */
+  --rarity-common: #9aa0a6;
+  --rarity-rare: #38b6c9;
+  --rarity-epic: #b15cff;
+  --rarity-legendary: #f2a93b;
+
+  /* Fonts */
+  --font-display: 'Archivo', 'Arial Black', system-ui, sans-serif;
+  --font-ui: 'Barlow', system-ui, -apple-system, sans-serif;
+  --font-data: 'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif;
+
+  color-scheme: dark;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg-900);
+    color: var(--text-hi);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  /* Tabular numerals everywhere we show live-updating counts. */
+  .num {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--team-blue-glow);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--ball-pink);
+    color: var(--text-hi);
+  }
+}
+
+@layer components {
+  /* Eyebrow / label type */
+  .eyebrow {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-lo);
+  }
+
+  /* Signature: the court-line rule (§5) */
+  .court-rule {
+    height: 2px;
+    width: 100%;
+    background: var(--wood);
+    border: 0;
+  }
+
+  .court-rule--segmented {
+    height: 4px;
+    width: 100%;
+    border: 0;
+    background: linear-gradient(
+      90deg,
+      var(--team-blue) 0 22%,
+      var(--court-yellow) 22% 40%,
+      var(--ball-pink) 40% 60%,
+      var(--court-green) 60% 78%,
+      var(--team-red) 78% 100%
+    );
+    border-radius: 2px;
+  }
+
+  /* Panel with a painted court stripe on its top edge */
+  .panel--court {
+    position: relative;
+    background: var(--bg-800);
+    border: 1px solid var(--bg-600);
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+  }
+  .panel--court::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--team-blue),
+      var(--court-yellow),
+      var(--ball-pink),
+      var(--team-red)
+    );
+  }
+
+  /* Court-line spinner (loading) */
+  .court-spinner {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 3px solid var(--bg-600);
+    border-top-color: var(--ball-pink);
+    border-right-color: var(--court-yellow);
+    animation: court-spin 0.9s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
+  }
+}
+
+@keyframes court-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Subtle background texture evoking gym-hall wood grain lines */
+.arena-backdrop {
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(201, 143, 82, 0.12), transparent 60%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 46px,
+      rgba(201, 143, 82, 0.035) 46px 48px
+    ),
+    var(--bg-900);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
