@@ -4,6 +4,7 @@ import {
   BALL,
   BallState,
   ControllerKind,
+  DIFFICULTY_PROFILES,
   FixedClock,
   KEULE,
   KeuleState,
@@ -13,11 +14,17 @@ import {
   PlayerLifeState,
   Team,
   afterRoundEnd,
+  arenaProps,
   buildNavGrid,
   computeThrow,
+  coverPoints,
+  createAIController,
   createInitialGameState,
   createMovementController,
   detectHits,
+  losBlockers,
+  makeRng,
+  stepAI,
   endRound,
   grabbableKeule,
   heldBallPosition,
@@ -32,7 +39,10 @@ import {
   timeExpiryWinner,
   validateKeulePlacement,
   type AABB,
+  type AIContext,
+  type AIController,
   type BallId,
+  type CoverPoint,
   type GameState,
   type MatchConfig,
   type MovementController,
@@ -60,6 +70,10 @@ export class GameRuntime {
   private bodies = new Map<PlayerId, RapierRigidBody>();
   private ballBodies = new Map<BallId, RapierRigidBody>();
   private controllers = new Map<PlayerId, MovementController>();
+  private aiControllers = new Map<PlayerId, AIController>();
+  private readonly rng = makeRng((Math.random() * 1e9) | 0);
+  private readonly losBlockers: AABB[] = losBlockers(arenaProps());
+  private readonly cover: CoverPoint[] = coverPoints(arenaProps());
   private listeners = new Set<(e: SimEvent) => void>();
   private hudTick = 0;
   /** Human aim direction on the floor plane, set each render frame. */
@@ -78,6 +92,9 @@ export class GameRuntime {
       p.position.z = w.z;
       p.spawn = { x: w.x, y: p.spawn.y, z: w.z };
       this.controllers.set(p.id, createMovementController({ ...p.aim }));
+      if (p.controller === ControllerKind.Bot) {
+        this.aiControllers.set(p.id, createAIController());
+      }
     }
   }
 
@@ -520,8 +537,22 @@ export class GameRuntime {
         interact: inputManager.consumeInteract(),
       };
     }
-    // Bots idle until the AI milestone (M5) drives them.
-    return neutralInput();
+    // Bots: run the AI only during the active round; frozen when OUT / between rounds.
+    if (p.life !== PlayerLifeState.Alive || this.state.phase !== MatchPhase.ActiveMatch) {
+      return neutralInput();
+    }
+    const ctrl = this.aiControllers.get(p.id);
+    if (!ctrl) return neutralInput();
+    const profile =
+      DIFFICULTY_PROFILES[p.difficulty ?? this.state.config.difficulty] ?? DIFFICULTY_PROFILES.normal;
+    const ctx: AIContext = {
+      grid: this.navGrid,
+      losBlockers: this.losBlockers,
+      cover: this.cover,
+      profile,
+      rng: this.rng,
+    };
+    return stepAI(this.state, p, ctrl, ctx, this.clock.dt);
   }
 
   private applyMovement(p: PlayerState, input: PlayerInput, dt: number) {
