@@ -1,7 +1,8 @@
-import { MatchPhase, Team, KeuleState, otherTeam } from '@shared';
+import { MatchPhase, PlayerLifeState, Team, KeuleState, otherTeam } from '@shared';
 import { useMatchStore } from '@/game/runtime/matchStore';
+import { useFxStore } from '@/game/fx/fxStore';
 import { useUIStore } from '@/state/uiStore';
-import { KeuleIcon } from '@/ui/icons';
+import { KeuleIcon, BallIcon } from '@/ui/icons';
 
 function fmtTime(sec: number): string {
   const s = Math.max(0, Math.ceil(sec));
@@ -50,6 +51,7 @@ function KeuleState_({ team, state }: { team: Team; state: KeuleState }) {
 /** The gameplay HUD. Grows with combat (M2), Keule + feed (M3). */
 export function HUD({ onPause }: { onPause: () => void }) {
   const hud = useMatchStore((s) => s.hud);
+  const fx = useFxStore();
   const showHints = useUIStore((s) => s.settings.showControlHints);
 
   if (!hud.active) return null;
@@ -57,6 +59,13 @@ export function HUD({ onPause }: { onPause: () => void }) {
   const human = hud.players.find((p) => p.isHuman);
   const myTeam = human?.team ?? Team.Blue;
   const enemy = otherTeam(myTeam);
+
+  const now = performance.now();
+  const showHitMarker = now - fx.hitMarkerAt < 650;
+  const showHurt = now - fx.hurtAt < 420;
+  const showInvalid = now - fx.invalidAt < 1600;
+  const isOut = human?.life === PlayerLifeState.Out;
+  const charging = (human?.throwCharge ?? 0) > 0.02;
 
   const objective =
     hud.phase === MatchPhase.Preparation
@@ -114,6 +123,87 @@ export function HUD({ onPause }: { onPause: () => void }) {
             Set your defence
           </div>
           <div className="mt-1 text-sm text-text-mid">Move and reposition your Keule before the round starts.</div>
+        </div>
+      )}
+
+      {/* Hit/kill feed (bottom-left) */}
+      <div className="absolute bottom-4 left-4 flex flex-col-reverse gap-1">
+        {fx.feed.map((f) => (
+          <div
+            key={f.id}
+            className="animate-[fadeIn_.15s_ease-out] bg-bg-900/70 px-3 py-1.5 text-sm"
+            style={{ borderLeft: `3px solid ${f.color}` }}
+          >
+            <span className="text-text-hi">{f.text}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom-centre: held-ball + charge meter */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+        {human?.heldBall ? (
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-2 w-56 overflow-hidden rounded-pill bg-bg-700">
+              <div
+                className="h-full rounded-pill transition-[width] duration-75"
+                style={{
+                  width: `${Math.round((human.throwCharge ?? 0) * 100)}%`,
+                  background: charging ? 'var(--ball-pink)' : 'var(--ball-pink-deep)',
+                  boxShadow: charging ? '0 0 16px rgba(255,138,196,.6)' : 'none',
+                }}
+              />
+            </div>
+            <div className="flex items-center gap-2 bg-bg-800/70 px-3 py-1">
+              <BallIcon className="h-4 w-4" />
+              <span className="eyebrow text-ball-pink">Hold to charge · release to throw</span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 bg-bg-800/50 px-3 py-1">
+            <BallIcon className="h-4 w-4 opacity-60" />
+            <span className="eyebrow text-text-lo">
+              Grab a ball · <kbd className="font-data text-text-mid">E</kbd> or walk over it
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Crosshair hit marker */}
+      {showHitMarker && (
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[120%] text-center">
+          <div className="font-display text-2xl font-black text-ball-pink drop-shadow">+1 HIT</div>
+        </div>
+      )}
+
+      {/* Hurt flash */}
+      {showHurt && (
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 40%, rgba(226,59,59,.45))' }}
+        />
+      )}
+
+      {/* INVALID KEULE LOCATION */}
+      {showInvalid && (
+        <div className="absolute left-1/2 top-[30%] -translate-x-1/2">
+          <div className="border border-danger bg-bg-900/85 px-5 py-2 font-display text-xl font-extrabold tracking-wide text-danger">
+            INVALID KEULE LOCATION
+          </div>
+        </div>
+      )}
+
+      {/* OUT overlay + respawn countdown */}
+      {isOut && human && (
+        <div className="absolute inset-0 grid place-items-center">
+          <div
+            className="absolute inset-0"
+            style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 30%, rgba(226,59,59,.35))' }}
+          />
+          <div className="relative text-center">
+            <div className="font-display text-7xl font-black text-danger">OUT</div>
+            <div className="mt-2 eyebrow text-text-mid">Back in</div>
+            <div className="num text-4xl font-bold text-text-hi">{Math.ceil(human.respawnIn)}</div>
+          </div>
         </div>
       )}
 

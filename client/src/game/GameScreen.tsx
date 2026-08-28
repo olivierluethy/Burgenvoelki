@@ -11,6 +11,10 @@ import { FollowCamera } from '@/game/camera/FollowCamera';
 import { Arena } from '@/game/scene/Arena';
 import { Lighting } from '@/game/scene/Lighting';
 import { PlayerRig } from '@/game/player/PlayerRig';
+import { BallRig } from '@/game/scene/BallRig';
+import { ImpactFX } from '@/game/fx/ImpactFX';
+import { EffectsBridge } from '@/game/fx/EffectsBridge';
+import { audio } from '@/audio/AudioService';
 import { HUD } from '@/game/hud/HUD';
 import { PauseOverlay } from '@/game/hud/PauseOverlay';
 
@@ -26,7 +30,11 @@ function Scene({ runtime }: { runtime: GameRuntime }) {
         {Object.keys(runtime.state.players).map((id) => (
           <PlayerRig key={id} id={id} />
         ))}
+        {Object.keys(runtime.state.balls).map((id) => (
+          <BallRig key={id} id={id} />
+        ))}
       </Physics>
+      <ImpactFX />
       <FollowCamera />
       <GameLoop />
     </ProvideRuntime>
@@ -40,9 +48,10 @@ export function GameScreen() {
   const [runtime] = useState(() => new GameRuntime(config));
   const [paused, setPaused] = useState(false);
 
-  // input lifecycle
+  // input + audio lifecycle
   useEffect(() => {
     inputManager.attach();
+    audio.unlock();
     return () => {
       inputManager.detach();
       runtime.dispose();
@@ -83,6 +92,7 @@ export function GameScreen() {
         <Scene runtime={runtime} />
       </Canvas>
 
+      <EffectsBridge runtime={runtime} />
       <HUD onPause={() => { runtime.paused = true; setPaused(true); }} />
       {paused && <PauseOverlay onResume={resume} onLeave={leave} />}
     </div>
