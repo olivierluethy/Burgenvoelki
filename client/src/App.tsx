@@ -2,7 +2,9 @@ import { useUIStore } from '@/state/uiStore';
 import { MainMenu } from '@/ui/screens/MainMenu';
 import { SetupScreen } from '@/ui/screens/SetupScreen';
 import { SettingsScreen } from '@/ui/screens/SettingsScreen';
-import { PlaceholderScreen } from '@/ui/screens/PlaceholderScreen';
+import { ProfileScreen } from '@/ui/screens/ProfileScreen';
+import { CustomizeScreen } from '@/ui/screens/CustomizeScreen';
+import { BattlePassScreen } from '@/ui/screens/BattlePassScreen';
 import { GameScreen } from '@/game/GameScreen';
 
 export default function App() {
@@ -18,26 +20,11 @@ export default function App() {
     case 'settings':
       return <SettingsScreen />;
     case 'profile':
-      return (
-        <PlaceholderScreen
-          title="Profile"
-          note="Your level, stats, badges and cosmetics land in milestone M6."
-        />
-      );
+      return <ProfileScreen />;
     case 'customize':
-      return (
-        <PlaceholderScreen
-          title="Customize"
-          note="Live character preview and cosmetics land in milestone M6."
-        />
-      );
+      return <CustomizeScreen />;
     case 'battlepass':
-      return (
-        <PlaceholderScreen
-          title="Battle Pass"
-          note="Seasons, rewards and challenges land in milestone M6."
-        />
-      );
+      return <BattlePassScreen />;
     default:
       return <MainMenu />;
   }
