@@ -12,3 +12,4 @@ export * from './sim';
 export * from './nav/grid';
 export * from './nav/astar';
 export * from './arena/props';
+export * from './ai';
