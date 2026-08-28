@@ -199,6 +199,18 @@
   }
 }
 
+@keyframes chestShake {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(-3px) rotate(-3deg);
+  }
+  75% {
+    transform: translateX(3px) rotate(3deg);
+  }
+}
+
 /* Subtle background texture evoking gym-hall wood grain lines */
 .arena-backdrop {
   background:
