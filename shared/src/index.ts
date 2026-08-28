@@ -8,3 +8,4 @@ export * from './types';
 export * from './config';
 export * from './math';
 export * from './persistence';
+export * from './sim';
