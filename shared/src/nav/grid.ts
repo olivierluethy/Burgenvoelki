@@ -73,3 +73,18 @@ export function isWalkableWorld(grid: NavGrid, x: number, z: number): boolean {
   const { c, r } = worldToCell(grid, x, z);
   return !isBlocked(grid, c, r);
 }
+
+/** Nearest walkable world point to (x,z), spiralling outward. */
+export function nearestWalkable(grid: NavGrid, x: number, z: number, maxRadius = 10): Vec2 {
+  const { c, r } = worldToCell(grid, x, z);
+  if (!isBlocked(grid, c, r)) return { x, z };
+  for (let rad = 1; rad <= maxRadius; rad++) {
+    for (let dc = -rad; dc <= rad; dc++) {
+      for (let dr = -rad; dr <= rad; dr++) {
+        if (Math.max(Math.abs(dc), Math.abs(dr)) !== rad) continue;
+        if (!isBlocked(grid, c + dc, r + dr)) return cellToWorld(grid, c + dc, r + dr);
+      }
+    }
+  }
+  return { x, z };
+}
