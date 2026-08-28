@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import {
   MatchPhase,
   Team,
+  type AwardSummary,
   type BallId,
   type KeuleState,
   type PlayerId,
@@ -65,12 +66,16 @@ const EMPTY: HudSnapshot = {
 
 interface MatchStore {
   hud: HudSnapshot;
+  awards: AwardSummary | null;
   setHud: (hud: HudSnapshot) => void;
+  setAwards: (awards: AwardSummary | null) => void;
   reset: () => void;
 }
 
 export const useMatchStore = create<MatchStore>((set) => ({
   hud: EMPTY,
+  awards: null,
   setHud: (hud) => set({ hud }),
-  reset: () => set({ hud: EMPTY }),
+  setAwards: (awards) => set({ awards }),
+  reset: () => set({ hud: EMPTY, awards: null }),
 }));

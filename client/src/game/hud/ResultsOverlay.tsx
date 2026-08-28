@@ -1,11 +1,13 @@
-import { MatchPhase, Team } from '@shared';
+import type { ReactNode } from 'react';
+import { MatchPhase, Team, getBadge, getCosmetic } from '@shared';
 import { useMatchStore, type HudPlayer } from '@/game/runtime/matchStore';
 import { Button, Eyebrow, CourtRule } from '@/ui/primitives';
 import { KeuleIcon } from '@/ui/icons';
 
-/** End-of-match scoreboard with per-team stats and the weighted MVP. */
+/** End-of-match scoreboard with per-team stats, the weighted MVP and rewards. */
 export function ResultsOverlay({ onContinue }: { onContinue: () => void }) {
   const hud = useMatchStore((s) => s.hud);
+  const awards = useMatchStore((s) => s.awards);
   if (hud.phase !== MatchPhase.Results) return null;
 
   const winner = hud.matchWinner;
@@ -58,6 +60,63 @@ export function ResultsOverlay({ onContinue }: { onContinue: () => void }) {
           ))}
         </div>
 
+        {/* Rewards */}
+        {awards && (
+          <>
+            <CourtRule className="my-6 opacity-40" />
+            <div className="rounded-md bg-bg-700 p-4">
+              <div className="flex items-center justify-between">
+                <Eyebrow className="text-court-yellow">Rewards</Eyebrow>
+                <span className="num text-2xl font-bold text-court-yellow">+{awards.xpGained} XP</span>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-text-mid sm:grid-cols-3">
+                {awards.breakdown.map((b, i) => (
+                  <div key={i} className="flex justify-between">
+                    <span>{b.label}</span>
+                    <span className="num text-text-hi">+{b.xp}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {awards.levelAfter > awards.levelBefore && (
+                  <Reward color="var(--court-yellow)">
+                    Level up → {awards.levelAfter}
+                  </Reward>
+                )}
+                {awards.bpLevelsGained > 0 && (
+                  <Reward color="var(--team-blue)">+{awards.bpLevelsGained} Battle Pass</Reward>
+                )}
+                {awards.chestsAwarded.length > 0 && (
+                  <Reward color="var(--ball-pink)">
+                    {awards.chestsAwarded.length} chest{awards.chestsAwarded.length > 1 ? 's' : ''}
+                  </Reward>
+                )}
+                {awards.unlockedCosmetics.map((id) => (
+                  <Reward key={id} color="var(--court-green)">
+                    Unlocked {getCosmetic(id)?.name ?? id}
+                  </Reward>
+                ))}
+                {awards.newBadges.map((id) => (
+                  <Reward key={id} color="var(--rarity-epic)">
+                    Badge · {getBadge(id)?.name ?? id}
+                  </Reward>
+                ))}
+                {awards.completedChallenges.length > 0 && (
+                  <Reward color="var(--court-cyan)">
+                    {awards.completedChallenges.length} challenge
+                    {awards.completedChallenges.length > 1 ? 's' : ''} done
+                  </Reward>
+                )}
+              </div>
+              {!awards.valid && (
+                <p className="mt-3 text-xs text-text-lo">
+                  Short or inactive match — only participation XP awarded.
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
         <div className="mt-8 flex justify-center">
           <Button size="lg" onClick={onContinue}>
             Continue
@@ -65,6 +124,17 @@ export function ResultsOverlay({ onContinue }: { onContinue: () => void }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function Reward({ children, color }: { children: ReactNode; color: string }) {
+  return (
+    <span
+      className="eyebrow inline-flex items-center rounded-pill px-3 py-1"
+      style={{ color, border: `1px solid ${color}`, background: 'rgba(0,0,0,.2)' }}
+    >
+      {children}
+    </span>
   );
 }
 

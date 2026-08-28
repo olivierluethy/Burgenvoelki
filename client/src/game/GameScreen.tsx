@@ -1,6 +1,9 @@
 import { Canvas } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { MatchPhase } from '@shared';
+import { useMatchStore } from '@/game/runtime/matchStore';
+import { grantMatchRewards } from '@/game/progressionBridge';
 import { CAMERA, PHYSICS, TICK_DT, arenaProps, propAABBs } from '@shared';
 import { useUIStore } from '@/state/uiStore';
 import { inputManager } from '@/game/input/inputManager';
@@ -54,6 +57,17 @@ export function GameScreen() {
   const go = useUIStore((s) => s.go);
   const [runtime] = useState(() => new GameRuntime(config, propAABBs(arenaProps())));
   const [paused, setPaused] = useState(false);
+  const phase = useMatchStore((s) => s.hud.phase);
+  const awardedRef = useRef(false);
+
+  // Grant progression rewards once, when the match reaches its results.
+  useEffect(() => {
+    if (phase === MatchPhase.Results && !awardedRef.current) {
+      awardedRef.current = true;
+      const summary = grantMatchRewards(runtime);
+      useMatchStore.getState().setAwards(summary);
+    }
+  }, [phase, runtime]);
 
   // input + audio lifecycle
   useEffect(() => {
