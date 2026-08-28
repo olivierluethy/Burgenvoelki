@@ -6,6 +6,7 @@ export type Screen =
   | 'menu'
   | 'setup'
   | 'game'
+  | 'multiplayer'
   | 'profile'
   | 'customize'
   | 'battlepass'

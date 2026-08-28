@@ -17,6 +17,9 @@ const CustomizeScreen = lazy(() =>
 const BattlePassScreen = lazy(() =>
   import('@/ui/screens/BattlePassScreen').then((m) => ({ default: m.BattlePassScreen })),
 );
+const MultiplayerScreen = lazy(() =>
+  import('@/net/MultiplayerScreen').then((m) => ({ default: m.MultiplayerScreen })),
+);
 
 function Screens() {
   const screen = useUIStore((s) => s.screen);
@@ -30,6 +33,8 @@ function Screens() {
       return <SettingsScreen />;
     case 'game':
       return <GameScreen />;
+    case 'multiplayer':
+      return <MultiplayerScreen />;
     case 'profile':
       return <ProfileScreen />;
     case 'customize':

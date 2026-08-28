@@ -62,6 +62,9 @@ export function MainMenu() {
               <Button size="lg" onClick={() => go('setup')}>
                 Play singleplayer
               </Button>
+              <Button size="lg" variant="pink" onClick={() => go('multiplayer')}>
+                Play online
+              </Button>
               <Button size="lg" variant="ghost" onClick={() => go('customize')}>
                 Customize
               </Button>
