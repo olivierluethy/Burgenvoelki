@@ -1,0 +1,20 @@
+# deps
+node_modules/
+.pnpm-store/
+# builds
+dist/
+build/
+*.tsbuildinfo
+# env / logs
+.env
+.env.*
+*.log
+npm-debug.log*
+# editor / os
+.DS_Store
+.idea/
+.vscode/
+# vite
+client/dist/
+server/dist/
+shared/dist/

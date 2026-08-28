@@ -1,0 +1,10 @@
+{
+  "name": "@burgenvoelki/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo \"server implemented in milestone M7\" && exit 0",
+    "typecheck": "tsc --noEmit || true"
+  }
+}

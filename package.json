@@ -1,0 +1,20 @@
+{
+  "name": "burgenvoelki",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Online Burgenvölki — browser 3D team game (dodgeball × capture-the-flag) inspired by the Swiss gym-hall game.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @burgenvoelki/client dev",
+    "build": "pnpm --filter @burgenvoelki/client build",
+    "preview": "pnpm --filter @burgenvoelki/client preview",
+    "server:dev": "pnpm --filter @burgenvoelki/server dev",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}
