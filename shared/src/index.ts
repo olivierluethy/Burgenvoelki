@@ -15,3 +15,4 @@ export * from './arena/props';
 export * from './ai';
 export * from './content';
 export * from './progression';
+export * from './net';
