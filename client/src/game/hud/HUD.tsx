@@ -66,6 +66,9 @@ export function HUD({ onPause }: { onPause: () => void }) {
   const showInvalid = now - fx.invalidAt < 1600;
   const isOut = human?.life === PlayerLifeState.Out;
   const charging = (human?.throwCharge ?? 0) > 0.02;
+  const showBanner = now - fx.bannerAt < 2200 && hud.phase === MatchPhase.ActiveMatch;
+  const roundEnd = hud.phase === MatchPhase.RoundEnd;
+  const winner = hud.lastRoundWinner;
 
   const objective =
     hud.phase === MatchPhase.Preparation
@@ -188,6 +191,37 @@ export function HUD({ onPause }: { onPause: () => void }) {
         <div className="absolute left-1/2 top-[30%] -translate-x-1/2">
           <div className="border border-danger bg-bg-900/85 px-5 py-2 font-display text-xl font-extrabold tracking-wide text-danger">
             INVALID KEULE LOCATION
+          </div>
+        </div>
+      )}
+
+      {/* Round-start banner */}
+      {showBanner && (
+        <div className="absolute left-1/2 top-[26%] -translate-x-1/2 text-center animate-[fadeIn_.2s_ease-out]">
+          <div className="font-display text-5xl font-black text-text-hi drop-shadow">{fx.bannerTitle}</div>
+          <hr className="court-rule--segmented mx-auto mt-3 w-48" />
+          <div className="mt-2 text-text-mid">{fx.bannerSub}</div>
+        </div>
+      )}
+
+      {/* Round-end banner */}
+      {roundEnd && (
+        <div className="absolute inset-0 grid place-items-center">
+          <div className="absolute inset-0 bg-bg-900/50" />
+          <div className="relative text-center animate-[fadeIn_.25s_ease-out]">
+            <div className="eyebrow text-text-mid">Round {hud.round}</div>
+            <div
+              className="mt-2 font-display text-6xl font-black"
+              style={{ color: winner ? (winner === Team.Blue ? 'var(--team-blue)' : 'var(--team-red)') : 'var(--text-hi)' }}
+            >
+              {winner ? `${winner === Team.Blue ? 'BLUE' : 'RED'} WINS` : 'DRAW'}
+            </div>
+            <div className="mt-2 text-text-mid">{hud.lastRoundReason}</div>
+            <div className="mt-4 flex items-center justify-center gap-6">
+              <span className="num text-3xl font-bold text-team-blue">{hud.scores[Team.Blue]}</span>
+              <span className="eyebrow text-text-lo">Rounds</span>
+              <span className="num text-3xl font-bold text-team-red">{hud.scores[Team.Red]}</span>
+            </div>
           </div>
         </div>
       )}

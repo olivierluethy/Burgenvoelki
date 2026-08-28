@@ -64,6 +64,7 @@ export function EffectsBridge({ runtime }: { runtime: GameRuntime }) {
           break;
         case 'round-start':
           audio.play('roundStart');
+          fx.showBanner(`Round ${e.round}`, 'Steal the enemy Keule — go!');
           break;
         case 'round-end':
           if (e.winner) audio.play('victory');

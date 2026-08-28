@@ -15,10 +15,14 @@ interface FxState {
   hitMarkerAt: number;
   hurtAt: number;
   invalidAt: number;
+  bannerAt: number;
+  bannerTitle: string;
+  bannerSub: string;
   pushFeed: (kind: FeedKind, text: string, color: string) => void;
   markHit: () => void;
   markHurt: () => void;
   markInvalid: () => void;
+  showBanner: (title: string, sub: string) => void;
   clear: () => void;
 }
 
@@ -29,6 +33,9 @@ export const useFxStore = create<FxState>((set, get) => ({
   hitMarkerAt: 0,
   hurtAt: 0,
   invalidAt: 0,
+  bannerAt: 0,
+  bannerTitle: '',
+  bannerSub: '',
   pushFeed: (kind, text, color) => {
     const id = ++uid;
     set({ feed: [{ id, kind, text, color }, ...get().feed].slice(0, 5) });
@@ -37,5 +44,6 @@ export const useFxStore = create<FxState>((set, get) => ({
   markHit: () => set({ hitMarkerAt: performance.now() }),
   markHurt: () => set({ hurtAt: performance.now() }),
   markInvalid: () => set({ invalidAt: performance.now() }),
-  clear: () => set({ feed: [], hitMarkerAt: 0, hurtAt: 0, invalidAt: 0 }),
+  showBanner: (title, sub) => set({ bannerAt: performance.now(), bannerTitle: title, bannerSub: sub }),
+  clear: () => set({ feed: [], hitMarkerAt: 0, hurtAt: 0, invalidAt: 0, bannerAt: 0 }),
 }));
