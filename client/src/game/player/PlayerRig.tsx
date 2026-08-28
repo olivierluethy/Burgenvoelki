@@ -2,9 +2,14 @@ import { CapsuleCollider, RigidBody, type RapierRigidBody } from '@react-three/r
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
 import type { Group } from 'three';
-import { PLAYER, PlayerLifeState, type PlayerId } from '@shared';
+import { PLAYER, PlayerLifeState, getCosmetic, type PlayerId } from '@shared';
 import { useRuntime } from '@/game/runtime/RuntimeContext';
+import { useProfileStore } from '@/state/profileStore';
 import { COLORS, teamColor } from '@/game/palette';
+
+function isVisible(id: string | undefined): boolean {
+  return !!id && !id.endsWith('_none');
+}
 
 const CYL_HALF = (PLAYER.height - 2 * PLAYER.radius) / 2; // capsule cylinder half-length
 
@@ -19,6 +24,9 @@ export function PlayerRig({ id }: { id: PlayerId }) {
   const aimRef = useRef<Group>(null);
   const player = runtime.state.players[id];
   const isHuman = id === runtime.state.humanId;
+  const equipped = useProfileStore((s) => s.profile.equipped);
+  const outfit = isHuman ? getCosmetic(equipped.outfit) : undefined;
+  const hat = isHuman ? getCosmetic(equipped.hat) : undefined;
 
   useEffect(() => {
     if (bodyRef.current) runtime.registerBody(id, bodyRef.current);
@@ -61,11 +69,19 @@ export function PlayerRig({ id }: { id: PlayerId }) {
         />
       </mesh>
 
-      {/* head band in the deep team tone */}
+      {/* head band — deep team tone, or the human's equipped outfit accent */}
       <mesh position={[0, CYL_HALF + PLAYER.radius * 0.2, 0]} castShadow>
         <cylinderGeometry args={[PLAYER.radius * 0.72, PLAYER.radius * 0.72, 0.16, 16]} />
-        <meshStandardMaterial color={deep} roughness={0.6} />
+        <meshStandardMaterial color={outfit ? outfit.colors[0] : deep} roughness={0.6} />
       </mesh>
+
+      {/* human's equipped hat */}
+      {isHuman && isVisible(equipped.hat) && hat && (
+        <mesh position={[0, CYL_HALF + PLAYER.radius * 0.5, 0]} castShadow>
+          <cylinderGeometry args={[PLAYER.radius * 0.5, PLAYER.radius * 0.62, 0.18, 16]} />
+          <meshStandardMaterial color={hat.colors[0]} roughness={0.5} emissive={hat.colors[0]} emissiveIntensity={0.1} />
+        </mesh>
+      )}
 
       {/* aim wedge (points along facing) */}
       <group ref={aimRef} position={[0, -CYL_HALF - PLAYER.radius + 0.02, 0]}>
