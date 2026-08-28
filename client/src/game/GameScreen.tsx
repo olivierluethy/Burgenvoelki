@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { Physics } from '@react-three/rapier';
 import { useEffect, useState } from 'react';
-import { CAMERA, PHYSICS, TICK_DT } from '@shared';
+import { CAMERA, PHYSICS, TICK_DT, arenaProps, propAABBs } from '@shared';
 import { useUIStore } from '@/state/uiStore';
 import { inputManager } from '@/game/input/inputManager';
 import { GameRuntime } from '@/game/runtime/GameRuntime';
@@ -13,6 +13,7 @@ import { Lighting } from '@/game/scene/Lighting';
 import { PlayerRig } from '@/game/player/PlayerRig';
 import { BallRig } from '@/game/scene/BallRig';
 import { KeuleRig } from '@/game/scene/KeuleRig';
+import { Props } from '@/game/scene/Props';
 import { Team } from '@shared';
 import { ImpactFX } from '@/game/fx/ImpactFX';
 import { EffectsBridge } from '@/game/fx/EffectsBridge';
@@ -30,6 +31,7 @@ function Scene({ runtime }: { runtime: GameRuntime }) {
       <Lighting />
       <Physics gravity={[PHYSICS.gravity.x, PHYSICS.gravity.y, PHYSICS.gravity.z]} timeStep={TICK_DT}>
         <Arena />
+        <Props />
         {Object.keys(runtime.state.players).map((id) => (
           <PlayerRig key={id} id={id} />
         ))}
@@ -50,7 +52,7 @@ function Scene({ runtime }: { runtime: GameRuntime }) {
 export function GameScreen() {
   const config = useUIStore((s) => s.matchConfig);
   const go = useUIStore((s) => s.go);
-  const [runtime] = useState(() => new GameRuntime(config));
+  const [runtime] = useState(() => new GameRuntime(config, propAABBs(arenaProps())));
   const [paused, setPaused] = useState(false);
 
   // input + audio lifecycle

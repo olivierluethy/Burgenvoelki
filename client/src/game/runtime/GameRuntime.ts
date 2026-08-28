@@ -25,6 +25,7 @@ import {
   isReturnCrossing,
   len3,
   nearestPickup,
+  nearestWalkable,
   neutralInput,
   norm2,
   stepMovement,
@@ -70,7 +71,12 @@ export class GameRuntime {
   constructor(config: MatchConfig, obstacles: AABB[] = []) {
     this.state = createInitialGameState(config);
     this.navGrid = buildNavGrid(obstacles);
+    // keep spawns clear of gym equipment
     for (const p of Object.values(this.state.players)) {
+      const w = nearestWalkable(this.navGrid, p.position.x, p.position.z);
+      p.position.x = w.x;
+      p.position.z = w.z;
+      p.spawn = { x: w.x, y: p.spawn.y, z: w.z };
       this.controllers.set(p.id, createMovementController({ ...p.aim }));
     }
   }
