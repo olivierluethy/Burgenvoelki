@@ -12,11 +12,14 @@ import { Arena } from '@/game/scene/Arena';
 import { Lighting } from '@/game/scene/Lighting';
 import { PlayerRig } from '@/game/player/PlayerRig';
 import { BallRig } from '@/game/scene/BallRig';
+import { KeuleRig } from '@/game/scene/KeuleRig';
+import { Team } from '@shared';
 import { ImpactFX } from '@/game/fx/ImpactFX';
 import { EffectsBridge } from '@/game/fx/EffectsBridge';
 import { audio } from '@/audio/AudioService';
 import { HUD } from '@/game/hud/HUD';
 import { PauseOverlay } from '@/game/hud/PauseOverlay';
+import { ResultsOverlay } from '@/game/hud/ResultsOverlay';
 
 /** In-canvas scene: everything that lives inside the R3F reconciler. */
 function Scene({ runtime }: { runtime: GameRuntime }) {
@@ -33,6 +36,8 @@ function Scene({ runtime }: { runtime: GameRuntime }) {
         {Object.keys(runtime.state.balls).map((id) => (
           <BallRig key={id} id={id} />
         ))}
+        <KeuleRig team={Team.Blue} />
+        <KeuleRig team={Team.Red} />
       </Physics>
       <ImpactFX />
       <FollowCamera />
@@ -94,6 +99,7 @@ export function GameScreen() {
 
       <EffectsBridge runtime={runtime} />
       <HUD onPause={() => { runtime.paused = true; setPaused(true); }} />
+      <ResultsOverlay onContinue={leave} />
       {paused && <PauseOverlay onResume={resume} onLeave={leave} />}
     </div>
   );
