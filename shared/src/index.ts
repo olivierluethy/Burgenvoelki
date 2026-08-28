@@ -9,3 +9,5 @@ export * from './config';
 export * from './math';
 export * from './persistence';
 export * from './sim';
+export * from './nav/grid';
+export * from './nav/astar';

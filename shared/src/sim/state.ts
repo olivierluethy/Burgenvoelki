@@ -28,9 +28,18 @@ export interface GameState {
   players: Record<PlayerId, PlayerState>;
   balls: Record<string, BallSnapshot>;
   keules: Record<Team, KeuleEntity>;
+  /** Round wins per team. */
   scores: Record<Team, number>;
+  /** Eliminations this round, used as the timer-expiry tiebreak. */
+  roundHits: Record<Team, number>;
   config: MatchConfig;
   humanId: PlayerId;
+  // --- round / results bookkeeping ---
+  lastRoundWinner: Team | null;
+  lastRoundReason: string;
+  matchWinner: Team | null;
+  mvpId: PlayerId | null;
+  mvpReason: string;
 }
 
 const BOT_NAMES = [
@@ -116,8 +125,14 @@ export function createInitialGameState(config: MatchConfig): GameState {
     balls: {},
     keules,
     scores: { [Team.Blue]: 0, [Team.Red]: 0 },
+    roundHits: { [Team.Blue]: 0, [Team.Red]: 0 },
     config,
     humanId: 'blue_0',
+    lastRoundWinner: null,
+    lastRoundReason: '',
+    matchWinner: null,
+    mvpId: null,
+    mvpReason: '',
   };
   spawnInitialBalls(state);
   return state;

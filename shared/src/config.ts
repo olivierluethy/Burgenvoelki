@@ -98,6 +98,13 @@ export const PHYSICS = {
   gravity: { x: 0, y: -18, z: 0 }, // slightly stronger than real g for snappy arcs
 } as const;
 
+export const MATCH = {
+  /** Banner duration between rounds. */
+  roundEndSec: 4.5,
+  /** Delay before the round becomes active after preparation ends. */
+  roundStartSec: 1.5,
+} as const;
+
 export const NAV = {
   /** Nav-grid cell size (metres). Balance of A* cost and fidelity for browser+server. */
   cellSize: 0.6,
