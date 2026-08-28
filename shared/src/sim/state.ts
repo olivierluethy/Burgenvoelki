@@ -13,6 +13,7 @@ import {
   type Vec2,
 } from '../types';
 import { KeuleState } from '../types';
+import { spawnInitialBalls } from './ball';
 
 /**
  * Authoritative game state — the single mutable world the simulation advances
@@ -70,8 +71,10 @@ export function createInitialGameState(config: MatchConfig): GameState {
       aim: aimDir,
       velocity: { x: 0, y: 0, z: 0 },
       heldBall: null,
+      throwCharge: 0,
       carryingKeule: false,
       respawnIn: 0,
+      spawn: { x: spawn.x, y: PLAYER.centerY, z: spawn.z },
       stats: emptyMatchStats(),
       level: 1,
     };
@@ -104,7 +107,7 @@ export function createInitialGameState(config: MatchConfig): GameState {
     },
   };
 
-  return {
+  const state: GameState = {
     tick: 0,
     phase: MatchPhase.Preparation,
     round: 1,
@@ -116,6 +119,8 @@ export function createInitialGameState(config: MatchConfig): GameState {
     config,
     humanId: 'blue_0',
   };
+  spawnInitialBalls(state);
+  return state;
 }
 
 export function alivePlayers(state: GameState): PlayerState[] {

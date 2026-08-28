@@ -78,10 +78,14 @@ export interface PlayerState {
   velocity: Vec3;
   /** BallId currently held, or null. A player holds at most one ball. */
   heldBall: BallId | null;
+  /** 0..1 throw charge while the throw button is held. */
+  throwCharge: number;
   /** True while carrying the enemy Keule (movement slowed). */
   carryingKeule: boolean;
   /** Seconds remaining until respawn while OUT; 0 when alive. */
   respawnIn: number;
+  /** Home spawn point for this player, used on respawn. */
+  spawn: Vec3;
   /** Per-match tallies used for the scoreboard + MVP. */
   stats: PlayerMatchStats;
   /** Bot-only runtime AI snapshot (undefined for humans). */

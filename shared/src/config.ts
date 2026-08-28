@@ -82,7 +82,7 @@ export const BALL = {
   restSpeed: 1.6,
   /** Vertical arc assist applied to throws so they fly nicely. */
   throwArc: 0.18,
-  holdForwardOffset: 0.6,
+  holdForwardOffset: 0.72,
   holdHeight: 1.15,
 } as const;
 
