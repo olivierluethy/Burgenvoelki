@@ -25,6 +25,14 @@ export const COLORS = {
   wall: '#2a241c',
   wallTrim: '#3a3125',
   textHi: '#fbf3e7',
+  // props
+  propTower: '#9c6b34',
+  propWall: '#b98246',
+  propBox: '#dcae74',
+  propMat: '#46564d',
+  propMatTop: '#57695e',
+  propMetal: '#9aa1a8',
+  propBarrier: '#cf7a3a',
 } as const;
 
 export function teamColor(team: Team, deep = false): string {
