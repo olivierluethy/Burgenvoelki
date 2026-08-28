@@ -18,5 +18,18 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: true,
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@dimforge') || id.includes('rapier')) return 'rapier';
+            if (id.includes('three')) return 'three';
+            if (id.includes('react') || id.includes('scheduler') || id.includes('zustand')) return 'react';
+            return 'vendor';
+          }
+        },
+      },
+    },
   },
 });
