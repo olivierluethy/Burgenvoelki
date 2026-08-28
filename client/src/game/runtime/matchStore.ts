@@ -18,6 +18,7 @@ export interface HudPlayer {
   respawnIn: number;
   carryingKeule: boolean;
   heldBall: BallId | null;
+  throwCharge: number;
   level: number;
   stats: PlayerMatchStats;
   isHuman: boolean;
