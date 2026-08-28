@@ -39,6 +39,11 @@ export interface HudSnapshot {
   humanId: PlayerId;
   players: HudPlayer[];
   keules: HudKeule[];
+  lastRoundWinner: Team | null;
+  lastRoundReason: string;
+  matchWinner: Team | null;
+  mvpId: PlayerId | null;
+  mvpReason: string;
 }
 
 const EMPTY: HudSnapshot = {
@@ -51,6 +56,11 @@ const EMPTY: HudSnapshot = {
   humanId: 'blue_0',
   players: [],
   keules: [],
+  lastRoundWinner: null,
+  lastRoundReason: '',
+  matchWinner: null,
+  mvpId: null,
+  mvpReason: '',
 };
 
 interface MatchStore {

@@ -5,24 +5,37 @@ import {
   BallState,
   ControllerKind,
   FixedClock,
+  KEULE,
+  KeuleState,
   MatchPhase,
   PLAYABLE,
   PLAYER,
   PlayerLifeState,
   Team,
+  afterRoundEnd,
+  buildNavGrid,
   computeThrow,
   createInitialGameState,
   createMovementController,
   detectHits,
+  endRound,
+  grabbableKeule,
   heldBallPosition,
+  isCaptureCrossing,
+  isReturnCrossing,
   len3,
   nearestPickup,
   neutralInput,
+  norm2,
   stepMovement,
+  timeExpiryWinner,
+  validateKeulePlacement,
+  type AABB,
   type BallId,
   type GameState,
   type MatchConfig,
   type MovementController,
+  type NavGrid,
   type PlayerId,
   type PlayerInput,
   type PlayerState,
@@ -52,9 +65,11 @@ export class GameRuntime {
   humanAim: Vec2 = { x: 1, z: 0 };
   paused = false;
   private pendingShake = 0;
+  readonly navGrid: NavGrid;
 
-  constructor(config: MatchConfig) {
+  constructor(config: MatchConfig, obstacles: AABB[] = []) {
     this.state = createInitialGameState(config);
+    this.navGrid = buildNavGrid(obstacles);
     for (const p of Object.values(this.state.players)) {
       this.controllers.set(p.id, createMovementController({ ...p.aim }));
     }
@@ -131,11 +146,14 @@ export class GameRuntime {
       this.stepRespawn(p, dt);
       const input = this.buildInput(p);
       this.applyMovement(p, input, dt);
+      this.stepKeule(p, input);
       this.stepCombat(p, input, dt);
     }
 
     this.updateHeldBalls();
+    this.updateCarriedKeules();
     this.resolveThrownBalls();
+    this.stepKeuleTransitions();
     if (this.state.phase === MatchPhase.ActiveMatch) this.resolveHits();
 
     this.state.tick++;
@@ -290,7 +308,10 @@ export class GameRuntime {
     if (target.carryingKeule) this.dropKeule(target);
 
     const thrower = byId ? this.state.players[byId] : null;
-    if (thrower && thrower.team !== target.team) thrower.stats.hits++;
+    if (thrower && thrower.team !== target.team) {
+      thrower.stats.hits++;
+      this.state.roundHits[thrower.team]++;
+    }
 
     this.moveToBench(target);
     this.emit({ type: 'hit', ball: ballId, target: targetId, by: byId, at });
@@ -298,9 +319,137 @@ export class GameRuntime {
     if (target.id === this.state.humanId) this.requestCameraShake(1.0);
   }
 
-  /** Placeholder until M3 wires the Keule; kept so applyHit stays stable. */
-  protected dropKeule(_p: PlayerState) {
-    // implemented in the Keule milestone
+  // --- Keule ---
+
+  private carriedKeuleTeam(p: PlayerState): Team | null {
+    for (const team of [Team.Blue, Team.Red] as Team[]) {
+      if (this.state.keules[team].carrier === p.id) return team;
+    }
+    return null;
+  }
+
+  /** Grab / place the Keule with E. Mutates `input.interact` so a grab/place
+   *  doesn't also trigger a ball pickup on the same press. */
+  private stepKeule(p: PlayerState, input: PlayerInput) {
+    if (p.life !== PlayerLifeState.Alive) return;
+
+    if (p.carryingKeule) {
+      // voluntary placement only makes sense while repositioning in preparation
+      if (this.state.phase === MatchPhase.Preparation && input.interact) {
+        const team = this.carriedKeuleTeam(p);
+        if (team) {
+          const k = this.state.keules[team];
+          const res = validateKeulePlacement(team, k.position, this.navGrid);
+          if (res.ok) {
+            k.state = KeuleState.Safe;
+            k.carrier = null;
+            p.carryingKeule = false;
+          } else {
+            this.emit({ type: 'keule-invalid', team });
+          }
+        }
+        input.interact = false;
+      }
+      return;
+    }
+
+    if (input.interact) {
+      const team = grabbableKeule(this.state, p);
+      if (team !== null) {
+        const k = this.state.keules[team];
+        k.carrier = p.id;
+        k.state = KeuleState.Carried;
+        p.carryingKeule = true;
+        p.stats.keulePickups++;
+        this.emit({ type: 'keule-pickup', player: p.id, team });
+        input.interact = false;
+      }
+    }
+  }
+
+  /** Drop the carried Keule (called from applyHit when a carrier is knocked out). */
+  private dropKeule(p: PlayerState) {
+    const team = this.carriedKeuleTeam(p);
+    if (!team) return;
+    const k = this.state.keules[team];
+    k.state = KeuleState.Dropped;
+    k.carrier = null;
+    k.position = { x: p.position.x, y: KEULE.height / 2, z: p.position.z };
+    p.carryingKeule = false;
+    this.emit({ type: 'keule-drop', team, at: { ...k.position } });
+  }
+
+  private updateCarriedKeules() {
+    for (const team of [Team.Blue, Team.Red] as Team[]) {
+      const k = this.state.keules[team];
+      if (!k.carrier) continue;
+      const carrier = this.state.players[k.carrier];
+      if (!carrier) continue;
+      const dir = norm2(carrier.aim);
+      k.position = {
+        x: carrier.position.x + dir.x * 0.35,
+        y: KEULE.carryHeight,
+        z: carrier.position.z + dir.z * 0.35,
+      };
+    }
+  }
+
+  private stepKeuleTransitions() {
+    for (const team of [Team.Blue, Team.Red] as Team[]) {
+      const k = this.state.keules[team];
+      if (!k.carrier) continue;
+      const carrier = this.state.players[k.carrier];
+      if (!carrier) continue;
+
+      // capture: carrier took the enemy Keule across their own line
+      if (this.state.phase === MatchPhase.ActiveMatch && isCaptureCrossing(carrier, team)) {
+        carrier.stats.captures++;
+        k.carrier = null;
+        k.state = KeuleState.Safe;
+        carrier.carryingKeule = false;
+        this.emit({ type: 'capture', team: carrier.team, by: carrier.id });
+        this.requestCameraShake(1.2);
+        endRound(this.state, carrier.team, 'Captured the enemy Keule');
+        this.emit({ type: 'round-end', winner: carrier.team });
+        this.emit({ type: 'phase', phase: MatchPhase.RoundEnd });
+        return;
+      }
+
+      // return: defender brought their own dropped Keule home
+      if (isReturnCrossing(carrier, team)) {
+        k.state = KeuleState.Safe;
+        k.carrier = null;
+        k.position = { ...k.home };
+        carrier.carryingKeule = false;
+        carrier.stats.keuleReturns++;
+        this.emit({ type: 'keule-return', team });
+      }
+    }
+  }
+
+  /** Teleport all physics bodies to match a freshly reset GameState (new round). */
+  private syncBodiesToState() {
+    for (const p of Object.values(this.state.players)) {
+      const body = this.bodies.get(p.id);
+      if (body) {
+        body.setTranslation({ ...p.position }, true);
+        body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      }
+      const ctrl = this.controllers.get(p.id);
+      if (ctrl) {
+        ctrl.dashTimeLeft = 0;
+        ctrl.dashCooldownLeft = 0;
+      }
+    }
+    for (const ball of Object.values(this.state.balls)) {
+      const body = this.ballBodies.get(ball.id);
+      if (body) {
+        body.setBodyType(0, true);
+        body.setTranslation({ ...ball.position }, true);
+        body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+        body.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      }
+    }
   }
 
   private moveToBench(p: PlayerState) {
@@ -315,13 +464,26 @@ export class GameRuntime {
 
   private advancePhase(dt: number) {
     const s = this.state;
-    if (s.phase === MatchPhase.Preparation || s.phase === MatchPhase.ActiveMatch) {
-      s.phaseTimer = Math.max(0, s.phaseTimer - dt);
-      if (s.phase === MatchPhase.Preparation && s.phaseTimer <= 0) {
-        s.phase = MatchPhase.ActiveMatch;
-        s.phaseTimer = s.config.roundDurationSec;
-        this.emit({ type: 'phase', phase: MatchPhase.ActiveMatch });
-        this.emit({ type: 'round-start', round: s.round });
+    if (s.phase === MatchPhase.Results) return;
+    s.phaseTimer = Math.max(0, s.phaseTimer - dt);
+
+    if (s.phase === MatchPhase.Preparation && s.phaseTimer <= 0) {
+      s.phase = MatchPhase.ActiveMatch;
+      s.phaseTimer = s.config.roundDurationSec;
+      this.emit({ type: 'phase', phase: MatchPhase.ActiveMatch });
+      this.emit({ type: 'round-start', round: s.round });
+    } else if (s.phase === MatchPhase.ActiveMatch && s.phaseTimer <= 0) {
+      const winner = timeExpiryWinner(s);
+      endRound(s, winner, winner ? 'Most eliminations' : 'Time up — draw');
+      this.emit({ type: 'round-end', winner });
+      this.emit({ type: 'phase', phase: MatchPhase.RoundEnd });
+    } else if (s.phase === MatchPhase.RoundEnd && s.phaseTimer <= 0) {
+      const outcome = afterRoundEnd(s);
+      if (outcome === 'results') {
+        this.emit({ type: 'phase', phase: MatchPhase.Results });
+      } else {
+        this.syncBodiesToState();
+        this.emit({ type: 'phase', phase: MatchPhase.Preparation });
       }
     }
   }
@@ -415,6 +577,11 @@ export class GameRuntime {
         team: t,
         state: s.keules[t].state,
       })),
+      lastRoundWinner: s.lastRoundWinner,
+      lastRoundReason: s.lastRoundReason,
+      matchWinner: s.matchWinner,
+      mvpId: s.mvpId,
+      mvpReason: s.mvpReason,
     };
     useMatchStore.getState().setHud(hud);
   }
