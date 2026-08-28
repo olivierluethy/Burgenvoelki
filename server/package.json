@@ -4,7 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "echo \"server implemented in milestone M7\" && exit 0",
-    "typecheck": "tsc --noEmit || true"
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@burgenvoelki/shared": "workspace:*",
+    "@colyseus/schema": "^2.0.0",
+    "colyseus": "0.15.17"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2"
   }
 }
